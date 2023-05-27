@@ -1,45 +1,53 @@
-export function visibleLineAlg(cubeFaces, cubeCoord) {
+export function visibleLineAlg(cubeFaces) {
+    let cubeCoord = {
+        x1: cubeFaces[3][2].state.start.x,
+        y1: cubeFaces[3][2].state.start.y,
+        z1: cubeFaces[3][2].state.start.z,
+        x2: cubeFaces[0][2].state.start.x,
+        y2: cubeFaces[0][2].state.start.y,
+        z2: cubeFaces[0][2].state.start.z
+    };
+
     // Координаты точки, в которой расположен наблюдатель
     const H = {
-        x: 500,
-        y: 500,
-        z: 500 // ??
+        x: 1000,
+        y: 1000,
+        z: 1000
     };
-    // Координаты внутреней точки
 
-    console.log('cubeCoord', cubeCoord);
+    // Координаты внутреней точки
     const O = {
-        x: (cubeCoord.x2 - cubeCoord.x1) / 2,
-        y: (cubeCoord.y2 - cubeCoord.y1) / 2,
-        z: (cubeCoord.z2 - cubeCoord.z1) / 2
+        x: (cubeCoord.x2 + cubeCoord.x1) / 2,
+        y: (cubeCoord.y2 + cubeCoord.y1) / 2,
+        z: (cubeCoord.z2 + cubeCoord.z1) / 2
     };
 
     // Массивы видимых и невидимых ребер
-    let notVisibleLine = [];
-    let visibleLine = [];
+    let notVisibleLine = new Set();
+    let visibleLine = new Set();
 
     for (let i = 0; i < 6; i++) {
         let detO = detMatrixPlane(O, cubeFaces[i]);
         let detH = detMatrixPlane(H, cubeFaces[i]);
-        console.log('det ', detO, detH);
 
         if (detO * detH < 0) {
             // грань видна
-            visibleLine.push(cubeFaces[i][0], cubeFaces[i][1], cubeFaces[i][2], cubeFaces[i][3]);
+            visibleLine.add(cubeFaces[i][0]);
+            visibleLine.add(cubeFaces[i][1]);
+            visibleLine.add(cubeFaces[i][2]);
+            visibleLine.add(cubeFaces[i][3]);
         } else {
-            // грань не видна
-            // for (let j = 0; j < 4; j++) {
-            //     // Отсечение видимых ребер
-            //     if (
-            //         (cubeFaces[i][j].state.start.z < O.z && cubeFaces[i][j].state.start.z < H.z) ||
-            //         (cubeFaces[i][j].state.end.z < O.z && cubeFaces[i][j].state.end.z < H.z)
-            //     )
-            //         notVisibleLine.push(cubeFaces[i][j]);
-            // }
-            // notVisibleLine.push(cubeFaces[i][0], cubeFaces[i][1], cubeFaces[i][2], cubeFaces[i][3]);
+            notVisibleLine.add(cubeFaces[i][0]);
+            notVisibleLine.add(cubeFaces[i][1]);
+            notVisibleLine.add(cubeFaces[i][2]);
+            notVisibleLine.add(cubeFaces[i][3]);
         }
     }
-    return [visibleLine, notVisibleLine];
+
+    let uniqVisLine = Array.from(visibleLine);
+    let uniqNotVisLine = Array.from(notVisibleLine).filter(x => !uniqVisLine.includes(x));
+
+    return [uniqVisLine, uniqNotVisLine];
 }
 
 // Вычисление определителя матричного уравнения плоскости,
@@ -57,9 +65,9 @@ function detMatrixPlane(dot, face) {
         z: face[0].state.end.z
     };
     let dot3 = {
-        x: face[1].state.end.x,
-        y: face[1].state.end.y,
-        z: face[1].state.end.z
+        x: face[3].state.start.x,
+        y: face[3].state.start.y,
+        z: face[3].state.start.z
     };
 
     let det =

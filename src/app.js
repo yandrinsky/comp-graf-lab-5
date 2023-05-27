@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import './app.css';
 import { useInitial } from './app.hook';
-import { convertZtoXY, to2dConvertor } from './app.utils';
+import { to2dConvertor } from './app.utils';
 import { rotationAroundY, rotationAroundX } from './app.utils';
 import { renderCoordinates } from './coordinates';
 import { createCube } from './cube';
@@ -13,17 +13,6 @@ export const App = () => {
         const { CNV } = useInitial();
 
         CNV.settings.draggableCanvasObserver = ({ preventDefault, xShift, yShift }) => {
-            // CNV.getState().xShift = (CNV.getState().xShift + xShift) % 360;
-            // CNV.getState().yShift = (CNV.getState().yShift + yShift) % 360;
-            //
-            // CNV.combineRender(() => {
-            //     CNV.querySelector('#canvasShiftText')?.remove();
-            //
-            //     CNV.querySelector('#xRotate').link.updateText(`x angle: ${CNV.getState().xShift}`);
-            //
-            //     CNV.querySelector('#yRotate').link.updateText(`y angle: ${CNV.getState().yShift}`);
-            // });
-
             CNV.combineRender(() => {
                 CNV.querySelectorAll('.cubeEdge').forEach(line => {
                     const updatedByXAngleCoords = rotationAroundX({
@@ -85,136 +74,10 @@ export const App = () => {
 
         renderCoordinates({ CNV });
 
-        const createCoordsCell = ({ startPosition, dotCoords: dotCoordsWithoutAngle }) => {
-            const updatedByXAngleCoords = rotationAroundX({
-                x: [dotCoordsWithoutAngle.x],
-                y: [dotCoordsWithoutAngle.y],
-                z: [dotCoordsWithoutAngle.z],
-                angle: CNV.getState().xShift
-            });
-
-            const updatedByYAngleCoords = rotationAroundY({
-                x: updatedByXAngleCoords.x,
-                y: updatedByXAngleCoords.y,
-                z: updatedByXAngleCoords.z,
-                angle: CNV.getState().yShift
-            });
-
-            const dotCoords = {
-                x: updatedByYAngleCoords.x[0],
-                y: updatedByYAngleCoords.y[0],
-                z: updatedByYAngleCoords.z[0]
-            };
-
-            const zCoords = convertZtoXY({ z: dotCoords.z, startPosition: startPosition });
-
-            CNV.combineRender(() => {
-                CNV.querySelectorAll('.coordsCellLine').forEach(el => el.remove());
-            });
-
-            CNV.combineRender(() => {
-                CNV.createLine({
-                    x0: startPosition.x,
-                    y0: startPosition.y - dotCoords.y,
-                    x1: startPosition.x + dotCoords.x,
-                    y1: startPosition.y - dotCoords.y,
-                    className: 'coordsCellLine'
-                });
-
-                CNV.createLine({
-                    x0: startPosition.x + dotCoords.x,
-                    y0: startPosition.y - dotCoords.y,
-                    x1: startPosition.x + dotCoords.x,
-                    y1: startPosition.y,
-                    className: 'coordsCellLine'
-                });
-
-                CNV.createLine({
-                    x0: zCoords.x,
-                    y0: zCoords.y,
-                    x1: zCoords.x + dotCoords.x,
-                    y1: zCoords.y,
-                    className: 'coordsCellLine'
-                });
-
-                CNV.createLine({
-                    x0: zCoords.x + dotCoords.x,
-                    y0: zCoords.y,
-                    x1: startPosition.x + dotCoords.x,
-                    y1: startPosition.y,
-                    className: 'coordsCellLine'
-                });
-
-                CNV.createLine({
-                    x0: zCoords.x + dotCoords.x,
-                    y0: zCoords.y,
-                    x1: zCoords.x + dotCoords.x,
-                    y1: zCoords.y - dotCoords.y,
-                    className: 'coordsCellLine'
-                });
-
-                CNV.createLine({
-                    x0: zCoords.x + dotCoords.x,
-                    y0: zCoords.y - dotCoords.y,
-                    x1: zCoords.x,
-                    y1: zCoords.y - dotCoords.y,
-                    className: 'coordsCellLine'
-                });
-
-                CNV.createLine({
-                    x0: zCoords.x,
-                    y0: zCoords.y - dotCoords.y,
-                    x1: zCoords.x,
-                    y1: zCoords.y,
-                    className: 'coordsCellLine'
-                });
-
-                CNV.createLine({
-                    x0: startPosition.x,
-                    y0: startPosition.y,
-                    x1: zCoords.x,
-                    y1: zCoords.y,
-                    className: 'coordsCellLine'
-                });
-
-                CNV.createLine({
-                    x0: zCoords.x,
-                    y0: zCoords.y - dotCoords.y,
-                    x1: startPosition.x,
-                    y1: startPosition.y - dotCoords.y,
-                    className: ['coordsCellLine']
-                });
-
-                CNV.createLine({
-                    x0: startPosition.x,
-                    y0: startPosition.y,
-                    x1: startPosition.x,
-                    y1: startPosition.y - dotCoords.y,
-                    className: ['coordsCellLine']
-                });
-
-                CNV.createLine({
-                    x0: zCoords.x + dotCoords.x,
-                    y0: zCoords.y - dotCoords.y,
-                    x1: startPosition.x + dotCoords.x,
-                    y1: startPosition.y - dotCoords.y,
-                    className: 'coordsCellLine'
-                });
-
-                CNV.createLine({
-                    x0: startPosition.x,
-                    y0: startPosition.y,
-                    x1: startPosition.x + dotCoords.x,
-                    y1: startPosition.y,
-                    className: 'coordsCellLine'
-                });
-            });
-        };
-
         const { frontEdge, leftEdge, rightEdge, backEdge, bottomEdge, topEdge, dot2, dot1 } =
             createCube({
                 startPosition,
-                cubeCenter: { x: 0, y: 0, z: 0 },
+                cubeCenter: { x: 0, y: 120, z: 0 },
                 CNV
             });
 
